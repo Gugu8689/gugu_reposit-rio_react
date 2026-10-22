@@ -1,0 +1,81 @@
+name: Teste Front-End - Nitro Sneakers
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  teste-front:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar Playwright
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps chromium
+
+      - name: Criar teste automatizado
+        run: |
+          mkdir -p tests
+          cat > tests/tst_front.spec.js <<'EOF'
+          const { test, expect } = require('@playwright/test');
+          const path = require('path');
+
+          test('A loja deve carregar os 8 produtos', async ({ page }) => {
+            await page.goto(
+              'file://' + path.resolve('index_corrigido(1).html')
+            );
+
+            await expect(page.locator('.cartao-tenis'))
+              .toHaveCount(8);
+
+            await expect(page.locator('.btn-comprar'))
+              .toHaveCount(8);
+          });
+
+          test('A compra deve calcular o frete corretamente', async ({ page }) => {
+            await page.goto(
+              'file://' + path.resolve('index_corrigido(1).html')
+            );
+
+            await page.getByRole('button', {
+              name: 'Comprar'
+            }).first().click();
+
+            await expect(page.locator('#caixa-resumo'))
+              .toContainText('Nitro Max (M)');
+
+            await expect(page.locator('#caixa-resumo'))
+              .toContainText('330,00');
+          });
+
+          test('Todos os botões de compra devem funcionar', async ({ page }) => {
+            await page.goto(
+              'file://' + path.resolve('index_corrigido(1).html')
+            );
+
+            const botoes = page.locator('.btn-comprar');
+
+            for (let i = 0; i < await botoes.count(); i++) {
+              await botoes.nth(i).click();
+
+              await expect(page.locator('#caixa-resumo'))
+                .toBeVisible();
+            }
+          });
+          EOF
+
+      - name: Executar testes
+        run: npx playwright test tests/tst_front.spec.js
+
+        
