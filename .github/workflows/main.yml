@@ -33,7 +33,7 @@ jobs:
 
           test('A loja deve carregar os 8 produtos', async ({ page }) => {
             await page.goto(
-              'file://' + path.resolve('index_corrigido(1).html')
+              'file://' + path.resolve('index_corrigido.html')
             );
 
             await expect(page.locator('.cartao-tenis'))
@@ -45,7 +45,7 @@ jobs:
 
           test('A compra deve calcular o frete corretamente', async ({ page }) => {
             await page.goto(
-              'file://' + path.resolve('index_corrigido(1).html')
+              'file://' + path.resolve('index_corrigido.html')
             );
 
             await page.getByRole('button', {
@@ -61,7 +61,7 @@ jobs:
 
           test('Todos os botões de compra devem funcionar', async ({ page }) => {
             await page.goto(
-              'file://' + path.resolve('index_corrigido(1).html')
+              'file://' + path.resolve('index_corrigido.html')
             );
 
             const botoes = page.locator('.btn-comprar');
